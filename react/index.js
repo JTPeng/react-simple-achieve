@@ -1,7 +1,7 @@
-import Component from './component';
+import Component from './component'
 const React = {
   createElement,
-  Component
+  Component,
 }
 
 function createElement(tag, attrs, ...childerns) {

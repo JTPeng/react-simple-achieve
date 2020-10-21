@@ -37,11 +37,26 @@ function createComponent(comp, props) {
  *渲染组件
  * @param {*} comp 组件
  */
-function renderComponent(comp) {
+export function renderComponent(comp) {
   const render = comp.render() // jsx 对象
   console.log(render)
   const base = _render(render)
+  if (comp.base && comp.componentWillUpdate) {
+    comp.componentWillUpdate()
+  }
+  if (comp.base) {
+    if (comp.componentDidUpdate) comp.componentDidUpdate()
+  } else if (comp.componentDidMount) {
+    comp.componentDidMount()
+  }
+
+  // 节点替换
+  if (comp.base && comp.base.parentNode) {
+    comp.base.parentNode.replaceChild(base, comp.base)
+  }
+
   comp.base = base
+
   console.log(base)
 }
 
@@ -52,6 +67,12 @@ function renderComponent(comp) {
  */
 function setComponentProps(comp, props) {
   console.log(comp, props)
+  // 生命周期设置
+  if (!comp.base) {
+    if (comp.componentWillMount) comp.componentWillMount()
+  } else if (comp.componentWilReceiveProps) {
+    comp.componentWilReceiveProps()
+  }
   // 设置属性
   comp.props = props
   // 渲染组件
@@ -59,6 +80,9 @@ function setComponentProps(comp, props) {
 }
 
 function _render(vnode) {
+  if (typeof vnode === 'number') {
+    vnode = String(vnode)
+  }
   if (typeof vnode === undefined || vnode === null || typeof vnode === 'boolean')
     return (vnode = '')
   // 文本节点
